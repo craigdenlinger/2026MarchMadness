@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
     }
 
     const tournament = await getCurrentTournament();
-    const teams = await getTeamsForTournament(tournament.id);
+    const teams = await getTeamsForTournament();
     const mutableTeams = teams.map((team) => ({ ...team }));
     const supabase = getSupabaseAdmin();
 
