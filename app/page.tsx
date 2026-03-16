@@ -1,47 +1,78 @@
 import Link from 'next/link';
 import { LeaderboardTable } from '@/components/LeaderboardTable';
+import { getPublicMetadata } from '@/lib/data';
 
-export default function HomePage() {
-  return (
-    <div className="grid">
-      <section className="hero-card card">
-        <div className="hero-copy">
-          <div className="hero-kicker">March Madness 2026 </div>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <Link href="/enter" className="btn">Enter your picks</Link>
-            <Link href="/popularity" className="btn secondary">See most-picked teams</Link>
-          </div>
+export default async function HomePage() {
+  const meta = await getPublicMetadata();
+
+  if (!meta.locked) {
+    return (
+      <section>
+        <h2>Entries are still open</h2>
+
+        <p>
+          The leaderboard and team picks will appear automatically after the
+          entry deadline passes.
+        </p>
+
+        <p>
+          Entry lock time: <strong>{meta.lockAt}</strong>
+        </p>
+
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 16 }}>
+          <Link href="/enter">Enter your picks</Link>
+          <Link href="/rules">Read the rules</Link>
         </div>
-        <div className="hero-stats">
-          <div className="stat-card">
-            <div className="small muted">Scoring</div>
-            <div className="stat-value">Seed × wins</div>
-          </div>
-          <div className="stat-card">
-            <div className="small muted">Championship bonus</div>
-            <div className="stat-value">Seed × 5</div>
-          </div>
-          <div className="stat-card">
-            <div className="small muted">Format</div>
-            <div className="stat-value">4 per region + 1 bonus</div>
-          </div>
+
+        <div style={{ marginTop: 32 }}>
+          <h3>Scoring</h3>
+          <p>Seed × wins</p>
+
+          <h3>Championship bonus</h3>
+          <p>Seed × 5</p>
+
+          <h3>Format</h3>
+          <p>4 per region + 1 bonus</p>
         </div>
       </section>
+    );
+  }
 
-      <div className="grid grid-2">
-        <div className="card">
-          <h2 style={{ marginTop: 0 }}>How scoring works</h2>
-          <p>Every win earns points equal to the team's seed. Example: a 10-seed that wins twice is worth 20 points.</p>
-          <p>The championship game is special: if you picked the national champion, that final win is worth <strong>seed × 5</strong> for that game.</p>
-        </div>
-        <div className="card">
-          <h2 style={{ marginTop: 0 }}>What you see here</h2>
-          <p><strong>Points</strong> = points already earned.</p>
-          <p><strong>Live Teams</strong> = how many of that player's picks are still alive.</p>
-          <p><strong>Max Remaining</strong> = the most additional points that player could still earn.</p>
-        </div>
+  return (
+    <section>
+      <h2>March Madness 2026</h2>
+
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
+        <Link href="/enter">Enter your picks</Link>
+        <Link href="/popularity">See most-picked teams</Link>
       </div>
+
+      <h3>Scoring</h3>
+      <p>Seed × wins</p>
+
+      <h3>Championship bonus</h3>
+      <p>Seed × 5</p>
+
+      <h3>Format</h3>
+      <p>4 per region + 1 bonus</p>
+
+      <h2>How scoring works</h2>
+      <p>
+        Every win earns points equal to the team&apos;s seed. Example: a 10-seed
+        that wins twice is worth 20 points.
+      </p>
+
+      <p>
+        The championship game is special: if you picked the national champion,
+        that final win is worth seed × 5 for that game.
+      </p>
+
+      <h2>What you see here</h2>
+      <p>Points = points already earned.</p>
+      <p>Live Teams = how many of that player&apos;s picks are still alive.</p>
+      <p>Max Remaining = the most additional points that player could still earn.</p>
+
       <LeaderboardTable />
-    </div>
+    </section>
   );
 }
