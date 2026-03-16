@@ -16,11 +16,15 @@ export function AdminEntryManager({ entries }: { entries: AdminEntryRow[] }) {
       setError('Enter your admin secret first.');
       return;
     }
-    if (!window.confirm(`Delete ${participantName}'s entry? This cannot be undone.`)) return;
+
+    if (!window.confirm(`Delete ${participantName}'s entry? This cannot be undone.`)) {
+      return;
+    }
 
     setWorkingId(entryId);
     setError('');
     setMessage('');
+
     try {
       const response = await fetch('/api/admin/delete-entry', {
         method: 'POST',
@@ -30,8 +34,13 @@ export function AdminEntryManager({ entries }: { entries: AdminEntryRow[] }) {
         },
         body: JSON.stringify({ entryId }),
       });
+
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Failed to delete entry.');
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete entry.');
+      }
+
       setItems((current) => current.filter((entry) => entry.entryId !== entryId));
       setMessage(`${participantName}'s entry was removed.`);
     } catch (err: any) {
@@ -42,23 +51,33 @@ export function AdminEntryManager({ entries }: { entries: AdminEntryRow[] }) {
   }
 
   return (
-    <div className="grid">
-      <div className="card">
-        <h2 style={{ marginTop: 0 }}>Delete test or duplicate entries</h2>
-        <p className="muted">Enter your admin secret, then remove any test submissions you do not want on the board.</p>
-        <input type="password" value={secret} onChange={(e) => setSecret(e.target.value)} placeholder="Admin secret" />
-        {message ? <div className="success" style={{ marginTop: 12 }}>{message}</div> : null}
-        {error ? <div className="error" style={{ marginTop: 12 }}>{error}</div> : null}
+    <section>
+      <h2>Delete test or duplicate entries</h2>
+      <p>Enter your admin secret, then remove any test submissions you do not want on the board.</p>
+
+      <div style={{ display: 'grid', gap: 12, marginBottom: 20 }}>
+        <input
+          type="password"
+          value={secret}
+          onChange={(e) => setSecret(e.target.value)}
+          placeholder="Admin secret"
+        />
+
+        {message ? <p>{message}</p> : null}
+        {error ? <p>{error}</p> : null}
       </div>
-      <div className="card">
-        <table>
+
+      {items.length === 0 ? (
+        <p>No entries found.</p>
+      ) : (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              <th>Participant</th>
-              <th>Paid Via</th>
-              <th>Picks</th>
-              <th>Submitted</th>
-              <th></th>
+              <th align="left">Participant</th>
+              <th align="left">Paid Via</th>
+              <th align="left">Picks</th>
+              <th align="left">Submitted</th>
+              <th align="left">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -68,12 +87,21 @@ export function AdminEntryManager({ entries }: { entries: AdminEntryRow[] }) {
                 <td>{entry.paymentMethod || '—'}</td>
                 <td>{entry.pickCount}</td>
                 <td>{formatDateTime(entry.submittedAt)}</td>
-                <td><button className="btn secondary" onClick={() => removeEntry(entry.entryId, entry.participantName)} disabled={workingId === entry.entryId}>{workingId === entry.entryId ? 'Removing...' : 'Delete'}</button></td>
+                <td>
+                  <button
+                    onClick={() => removeEntry(entry.entryId, entry.participantName)}
+                    disabled={workingId === entry.entryId}
+                  >
+                    {workingId === entry.entryId ? 'Removing...' : 'Delete'}
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
-    </div>
+      )}
+    </section>
+  );
+}
   );
 }
