@@ -197,25 +197,34 @@ export async function getTeamPopularity(): Promise<TeamPickCount[]> {
 export async function getAdminEntries(): Promise<AdminEntryRow[]> {
   const supabase = getSupabaseAdmin();
   const tournament = await getCurrentTournament();
+
   const { data, error } = await supabase
     .from('entries')
     .select(`
       id,
       submitted_at,
       payment_method,
-      participants!inner(display_name),
-      entry_picks(id)
+      participant:participants (
+        display_name,
+        email
+      ),
+      entry_picks (
+        id
+      )
     `)
     .eq('tournament_id', tournament.id)
     .order('submitted_at', { ascending: false });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw error;
+  }
 
-  return ((data || []) as any[]).map((entry) => ({
-    entryId: entry.id,
-    participantName: entry.participants.display_name,
-    paymentMethod: entry.payment_method,
-    submittedAt: entry.submitted_at,
-    pickCount: (entry.entry_picks || []).length,
+  return (data || []).map((row: any) => ({
+    entryId: row.id,
+    participantName: row.participant?.display_name || 'Unknown',
+    participantEmail: row.participant?.email || null,
+    paymentMethod: row.payment_method || null,
+    pickCount: row.entry_picks?.length || 0,
+    submittedAt: row.submitted_at,
   }));
 }
