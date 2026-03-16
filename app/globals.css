@@ -1,0 +1,58 @@
+:root {
+  --bg: #08111f;
+  --card: #111c31;
+  --card-2: #172540;
+  --muted: #9fb0cc;
+  --text: #f5f7fb;
+  --accent: #ff9f45;
+  --accent-2: #86c3ff;
+  --danger: #ff8ea1;
+  --success: #7ce6b3;
+  --border: #263b63;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background: radial-gradient(circle at top, #13284a, var(--bg) 38%); color: var(--text); }
+a { color: var(--accent-2); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.container { max-width: 1180px; margin: 0 auto; padding: 24px; }
+.card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)), var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; box-shadow: 0 12px 30px rgba(0,0,0,0.22); }
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.btn { display: inline-block; background: var(--accent); color: #2a1705; border: none; border-radius: 12px; padding: 10px 14px; font-weight: 700; cursor: pointer; }
+.btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+input, select, textarea { width: 100%; background: #0e172a; color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+.badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #172036; border: 1px solid var(--border); font-size: 12px; }
+.muted { color: var(--muted); }
+.error { color: var(--danger); }
+.success { color: var(--success); }
+.header { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+.nav { display: flex; gap: 14px; flex-wrap: wrap; }
+.region-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.team-option { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.small { font-size: 12px; }
+.notice { border-left: 4px solid var(--accent-2); padding-left: 12px; }
+.code { font-family: Menlo, Consolas, monospace; font-size: 13px; background: #0e1527; padding: 2px 6px; border-radius: 6px; }
+.hero-card { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.9fr); gap: 18px; align-items: stretch; background: linear-gradient(135deg, rgba(255,159,69,0.18), rgba(134,195,255,0.12) 55%, rgba(255,255,255,0.02)), var(--card); }
+.hero-kicker { color: #ffd4aa; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 12px; }
+.hero-title { margin: 8px 0 10px; font-size: clamp(28px, 5vw, 42px); line-height: 1.05; }
+.hero-text { max-width: 700px; color: #d9e6ff; }
+.hero-stats { display: grid; gap: 12px; }
+.stat-card { background: rgba(8,17,31,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 14px; }
+.stat-value { font-size: 20px; font-weight: 800; margin-top: 6px; }
+.basketball-card { background: linear-gradient(145deg, rgba(255,159,69,0.12), rgba(255,255,255,0.02) 48%), var(--card); }
+.payment-box { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: #0e172a; }
+.bar-row { display: grid; grid-template-columns: minmax(220px, 1.5fr) minmax(120px, 4fr) 50px; gap: 12px; align-items: center; margin-bottom: 10px; }
+.bar-track { height: 14px; border-radius: 999px; overflow: hidden; background: #0d1628; border: 1px solid var(--border); }
+.bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+.bar-value { text-align: right; font-weight: 700; }
+.bar-label { min-width: 0; }
+
+@media (max-width: 880px) {
+  .hero-card { grid-template-columns: 1fr; }
+}
