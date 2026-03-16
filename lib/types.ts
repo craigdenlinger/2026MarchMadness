@@ -37,12 +37,23 @@ export type EntryPickDetail = {
 export type EntryDetail = {
   entryId: string;
   participantName: string;
-  paymentMethod: PaymentMethod | null;
-  submittedAt: string;
+  participantEmail: string | null;
+  paymentMethod: string | null;
   points: number;
   liveTeams: number;
   maxRemainingPoints: number;
-  picks: EntryPickDetail[];
+  picks: {
+    teamId: string;
+    teamName: string;
+    region: string;
+    seed: number;
+    wins: number;
+    points: number;
+    isAlive: boolean;
+    isChampion: boolean;
+    maxRemainingPoints: number;
+    pickType: 'regional' | 'bonus';
+  }[];
 };
 
 export type LeaderboardRow = {
