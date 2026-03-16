@@ -103,5 +103,3 @@ export function AdminEntryManager({ entries }: { entries: AdminEntryRow[] }) {
     </section>
   );
 }
-  );
-}
