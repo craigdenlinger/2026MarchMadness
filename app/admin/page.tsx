@@ -1,5 +1,5 @@
 import Link from 'next/link';
-
+export const dynamic = 'force-dynamic';
 export default function AdminPage() {
   return (
     <div className="grid grid-2">
