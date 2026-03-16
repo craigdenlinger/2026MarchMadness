@@ -1,65 +1,85 @@
 import Link from 'next/link';
-import { getEntryDetail } from '@/lib/data';
+import { getEntryDetail, getPublicMetadata } from '@/lib/data';
 
-export default async function EntryDetailPage({ params }: { params: Promise<{ entryId: string }> }) {
+export default async function EntryDetailPage({
+  params,
+}: {
+  params: Promise<{ entryId: string }>;
+}) {
+  const meta = await getPublicMetadata();
+
+  if (!meta.locked) {
+    return (
+      <section>
+        <h2>Participant selections are hidden until entries lock</h2>
+        <p>
+          Individual entry pages will become available automatically after the
+          deadline passes.
+        </p>
+        <p>
+          Entry lock time: <strong>{meta.lockAt}</strong>
+        </p>
+        <Link href="/enter">Back to Enter Picks</Link>
+      </section>
+    );
+  }
+
   const { entryId } = await params;
   const entry = await getEntryDetail(entryId);
 
   if (!entry) {
-    return <div className="card">Entry not found.</div>;
+    return (
+      <section>
+        <p>Entry not found.</p>
+      </section>
+    );
   }
 
   return (
-    <div className="grid">
-      <div className="card basketball-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-          <div>
-            <div className="muted small">Participant card</div>
-            <h2 style={{ margin: '4px 0 6px' }}>{entry.participantName}</h2>
-            <div className="muted">Paid via {entry.paymentMethod || 'not recorded'}.</div>
-          </div>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <span className="badge">Points: {entry.points}</span>
-            <span className="badge">Live teams: {entry.liveTeams}</span>
-            <span className="badge">Max remaining: {entry.maxRemainingPoints}</span>
-          </div>
-        </div>
+    <section>
+      <div style={{ marginBottom: 24 }}>
+        <p>Participant card</p>
+        <h2>{entry.participantName}</h2>
+        <p>Paid via {entry.paymentMethod || 'not recorded'}.</p>
+        <p>
+          Points: {entry.points} | Live teams: {entry.liveTeams} | Max remaining:{' '}
+          {entry.maxRemainingPoints}
+        </p>
       </div>
 
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-          <h3 style={{ margin: 0 }}>All selections</h3>
-          <Link href="/">← Back to leaderboard</Link>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Team</th>
-              <th>Region</th>
-              <th>Seed</th>
-              <th>Wins</th>
-              <th>Points</th>
-              <th>Still alive?</th>
-              <th>Max remaining</th>
+      <h3>All selections</h3>
+      <p>
+        <Link href="/">← Back to leaderboard</Link>
+      </p>
+
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th align="left">Type</th>
+            <th align="left">Team</th>
+            <th align="left">Region</th>
+            <th align="left">Seed</th>
+            <th align="left">Wins</th>
+            <th align="left">Points</th>
+            <th align="left">Still alive?</th>
+            <th align="left">Max remaining</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entry.picks.map((pick) => (
+            <tr key={`${pick.pickType}-${pick.teamId}`}>
+              <td>{pick.pickType === 'bonus' ? 'Bonus' : 'Regional'}</td>
+              <td>{pick.teamName}</td>
+              <td>{pick.region}</td>
+              <td>{pick.seed}</td>
+              <td>{pick.wins}</td>
+              <td>{pick.points}</td>
+              <td>{pick.isChampion ? 'Champion' : pick.isAlive ? 'Yes' : 'No'}</td>
+              <td>{pick.maxRemainingPoints}</td>
             </tr>
-          </thead>
-          <tbody>
-            {entry.picks.map((pick) => (
-              <tr key={`${pick.pickType}-${pick.teamId}`}>
-                <td>{pick.pickType === 'bonus' ? 'Bonus' : 'Regional'}</td>
-                <td>{pick.teamName}</td>
-                <td>{pick.region}</td>
-                <td>{pick.seed}</td>
-                <td>{pick.wins}</td>
-                <td>{pick.points}</td>
-                <td>{pick.isChampion ? 'Champion' : pick.isAlive ? 'Yes' : 'No'}</td>
-                <td>{pick.maxRemainingPoints}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          ))}
+        </tbody>
+      </table>
+    </section>
   );
 }
