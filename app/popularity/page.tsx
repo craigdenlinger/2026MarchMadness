@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { TeamPopularityChart } from '@/components/TeamPopularityChart';
 import { getPublicMetadata } from '@/lib/data';
 
+export const dynamic = 'force-dynamic';
+
 export default async function PopularityPage() {
   const meta = await getPublicMetadata();
 
