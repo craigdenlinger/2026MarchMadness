@@ -1,50 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentTournament } from '@/lib/data';
-import { getSupabaseAdmin } from '@/lib/supabase';
-import { isAuthorized } from '@/lib/admin-auth';
-import { normalizeTeamName } from '@/lib/utils';
+import { getCurrentTournament, getSupabaseAdmin } from '@/lib/data';
 
-type TeamRow = {
-  name: string;
-  region: 'East' | 'West' | 'South' | 'Midwest';
-  seed: number;
-  espn_team_id?: string | null;
-};
-
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    if (!isAuthorized(req, 'ADMIN_SECRET')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const body = await request.json();
+    const teams = body.teams;
 
-    const body = await req.json();
-    const teams = body.teams as TeamRow[];
     if (!Array.isArray(teams) || teams.length === 0) {
-      return NextResponse.json({ error: 'No teams supplied.' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'A non-empty teams array is required.' },
+        { status: 400 }
+      );
     }
 
     const tournament = await getCurrentTournament();
     const supabase = getSupabaseAdmin();
 
-    await supabase.from('teams').delete().eq('tournament_id', tournament.id);
+    const tournamentId = tournament.id as string;
 
-    const rows = teams.map((team) => ({
-      tournament_id: tournament.id,
-      name: team.name.trim(),
-      normalized_name: normalizeTeamName(team.name),
+    await supabase.from('teams').delete().eq('tournament_id', tournamentId);
+
+    const rows = teams.map((team: any) => ({
+      tournament_id: tournamentId,
+      name: team.name,
       region: team.region,
-      seed: Number(team.seed),
-      is_alive: true,
-      wins: 0,
-      is_champion: false,
-      espn_team_id: team.espn_team_id || null,
+      seed: team.seed,
+      wins: team.wins ?? 0,
+      is_alive: team.is_alive ?? true,
+      is_champion: team.is_champion ?? false,
     }));
 
     const { error } = await supabase.from('teams').insert(rows);
-    if (error) throw error;
 
-    return NextResponse.json({ success: true, inserted: rows.length });
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json({
+      success: true,
+      inserted: rows.length,
+    });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'Failed to import teams.' }, { status: 500 });
+    console.error(error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to import teams.' },
+      { status: 500 }
+    );
   }
 }
