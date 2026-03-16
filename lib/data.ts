@@ -374,6 +374,25 @@ export async function getTeamPopularity(): Promise<TeamPopularityRow[]> {
   });
 }
 
+export async function getTeamsForTournament() {
+  const supabase = getSupabaseAdmin();
+  const tournament = await getCurrentTournament();
+
+  const { data, error } = await supabase
+    .from('teams')
+    .select('*')
+    .eq('tournament_id', tournament.id)
+    .order('region', { ascending: true })
+    .order('seed', { ascending: true })
+    .order('name', { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return data || [];
+}
+
 export function normalizeTeamName(name: string) {
   return name
     .toLowerCase()
