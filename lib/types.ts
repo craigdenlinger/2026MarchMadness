@@ -1,37 +1,53 @@
 export type Region = 'East' | 'West' | 'South' | 'Midwest';
+
 export type PaymentMethod = 'Venmo' | 'Paypal';
 
-export type Team = {
+export type TeamOption = {
   id: string;
   name: string;
-  region: Region;
   seed: number;
-  is_alive: boolean;
-  wins: number;
-  is_champion: boolean;
-  espn_team_id: string | null;
+  region: Region;
 };
 
 export type PublicMetadata = {
-  tournamentId: string;
+  tournamentYear: number;
   tournamentName: string;
-  year: number;
-  lockAt: string;
+  lockAt: string | null;
   locked: boolean;
-  regions: Record<Region, Team[]>;
+  regions: Record<Region, TeamOption[]>;
+};
+
+export type LeaderboardRow = {
+  entryId: string;
+  participantName: string;
+  participantEmail: string | null;
+  paymentMethod: string | null;
+  points: number;
+  liveTeams: number;
+  maxRemainingPoints: number;
+  submittedAt: string;
+};
+
+export type AdminEntryRow = {
+  entryId: string;
+  participantName: string;
+  participantEmail: string | null;
+  paymentMethod: string | null;
+  pickCount: number;
+  submittedAt: string;
 };
 
 export type EntryPickDetail = {
   teamId: string;
   teamName: string;
-  region: Region;
+  region: string;
   seed: number;
   wins: number;
+  points: number;
   isAlive: boolean;
   isChampion: boolean;
-  pickType: 'regional' | 'bonus';
-  points: number;
   maxRemainingPoints: number;
+  pickType: 'regional' | 'bonus';
 };
 
 export type EntryDetail = {
@@ -42,44 +58,13 @@ export type EntryDetail = {
   points: number;
   liveTeams: number;
   maxRemainingPoints: number;
-  picks: {
-    teamId: string;
-    teamName: string;
-    region: string;
-    seed: number;
-    wins: number;
-    points: number;
-    isAlive: boolean;
-    isChampion: boolean;
-    maxRemainingPoints: number;
-    pickType: 'regional' | 'bonus';
-  }[];
+  picks: EntryPickDetail[];
 };
 
-export type LeaderboardRow = {
-  rank: number;
-  entryId: string;
-  participantName: string;
-  paymentMethod: PaymentMethod | null;
-  points: number;
-  liveTeams: number;
-  maxRemainingPoints: number;
-  submittedAt: string;
-};
-
-export type TeamPickCount = {
+export type TeamPopularityRow = {
   teamId: string;
   teamName: string;
-  region: Region;
+  region: string;
   seed: number;
-  pickCount: number;
-};
-
-export type AdminEntryRow = {
-  entryId: string;
-  participantName: string;
-  participantEmail: string | null;
-  paymentMethod: string | null;
-  pickCount: number;
-  submittedAt: string;
+  count: number;
 };
