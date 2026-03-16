@@ -67,7 +67,8 @@ export type TeamPickCount = {
 export type AdminEntryRow = {
   entryId: string;
   participantName: string;
-  paymentMethod: PaymentMethod | null;
-  submittedAt: string;
+  participantEmail: string | null;
+  paymentMethod: string | null;
   pickCount: number;
+  submittedAt: string;
 };
