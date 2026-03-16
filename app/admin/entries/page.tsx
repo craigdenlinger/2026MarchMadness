@@ -3,5 +3,10 @@ import { getAdminEntries } from '@/lib/data';
 
 export default async function AdminEntriesPage() {
   const entries = await getAdminEntries();
-  return <AdminEntryManager entries={entries} />;
+
+  return (
+    <section>
+      <AdminEntryManager entries={entries} />
+    </section>
+  );
 }
