@@ -1,6 +1,8 @@
 import { AdminEntryManager } from '@/components/AdminEntryManager';
 import { getAdminEntries } from '@/lib/data';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminEntriesPage() {
   const entries = await getAdminEntries();
 
