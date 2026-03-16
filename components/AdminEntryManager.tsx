@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import type { AdminEntryRow } from '@/lib/types';
 import { formatDateTime } from '@/lib/utils';
@@ -52,15 +53,15 @@ export function AdminEntryManager({ entries }: { entries: AdminEntryRow[] }) {
 
   return (
     <section>
-      <h2>Delete test or duplicate entries</h2>
-      <p>Enter your admin secret, then remove any test submissions you do not want on the board.</p>
+      <h2>Manage entries</h2>
+      <p>Review submissions, open full pick sheets, and delete test or duplicate entries.</p>
 
       <div style={{ display: 'grid', gap: 12, marginBottom: 20 }}>
         <input
           type="password"
           value={secret}
           onChange={(e) => setSecret(e.target.value)}
-          placeholder="Admin secret"
+          placeholder="Admin secret (only needed for delete)"
         />
 
         {message ? <p>{message}</p> : null}
@@ -74,19 +75,25 @@ export function AdminEntryManager({ entries }: { entries: AdminEntryRow[] }) {
           <thead>
             <tr>
               <th align="left">Participant</th>
+              <th align="left">Email</th>
               <th align="left">Paid Via</th>
               <th align="left">Picks</th>
               <th align="left">Submitted</th>
-              <th align="left">Action</th>
+              <th align="left">View</th>
+              <th align="left">Delete</th>
             </tr>
           </thead>
           <tbody>
             {items.map((entry) => (
               <tr key={entry.entryId}>
                 <td>{entry.participantName}</td>
+                <td>{entry.participantEmail || '—'}</td>
                 <td>{entry.paymentMethod || '—'}</td>
                 <td>{entry.pickCount}</td>
                 <td>{formatDateTime(entry.submittedAt)}</td>
+                <td>
+                  <Link href={`/admin/entries/${entry.entryId}`}>View Picks</Link>
+                </td>
                 <td>
                   <button
                     onClick={() => removeEntry(entry.entryId, entry.participantName)}
