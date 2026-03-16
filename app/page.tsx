@@ -6,9 +6,7 @@ export default function HomePage() {
     <div className="grid">
       <section className="hero-card card">
         <div className="hero-copy">
-          <div className="hero-kicker">March Madness 2026 • high-upside seed hunting</div>
-          <h2 className="hero-title">Bennett Stirtz energy. Chaos-friendly scoring. Live pool standings.</h2>
-          <p className="hero-text">This pool is built for upside, not safe chalk. Hunt the dangerous seeds, sweat the late-night upset runs, and watch the board move as soon as scores update.</p>
+          <div className="hero-kicker">March Madness 2026 </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Link href="/enter" className="btn">Enter your picks</Link>
             <Link href="/popularity" className="btn secondary">See most-picked teams</Link>
