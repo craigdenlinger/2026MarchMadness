@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentTournament, getSupabaseAdmin } from '@/lib/data';
+import { getSupabaseAdmin } from '@/lib/data';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,12 +13,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const tournament = await getCurrentTournament();
     const supabase = getSupabaseAdmin();
+    const tournamentYear = Number(process.env.TOURNAMENT_YEAR || 2026);
 
-    const tournamentId = tournament.id as string;
+    const { data: tournament, error: tournamentError } = await supabase
+      .from('tournaments')
+      .select('id')
+      .eq('year', tournamentYear)
+      .single();
 
-    await supabase.from('teams').delete().eq('tournament_id', tournamentId);
+    if (tournamentError || !tournament) {
+      return NextResponse.json(
+        { error: 'Tournament not found.' },
+        { status: 500 }
+      );
+    }
+
+    const tournamentId = (tournament as { id: string }).id;
+
+    const { error: deleteError } = await supabase
+      .from('teams')
+      .delete()
+      .eq('tournament_id', tournamentId);
+
+    if (deleteError) {
+      throw deleteError;
+    }
 
     const rows = teams.map((team: any) => ({
       tournament_id: tournamentId,
@@ -30,10 +50,10 @@ export async function POST(request: NextRequest) {
       is_champion: team.is_champion ?? false,
     }));
 
-    const { error } = await supabase.from('teams').insert(rows);
+    const { error: insertError } = await supabase.from('teams').insert(rows);
 
-    if (error) {
-      throw error;
+    if (insertError) {
+      throw insertError;
     }
 
     return NextResponse.json({
