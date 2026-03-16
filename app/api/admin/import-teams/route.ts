@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       is_champion: team.is_champion ?? false,
     }));
 
-    const { error: insertError } = await supabase.from('teams').insert(rows);
+    const { error: insertError } = await (supabase as any).from('teams').insert(rows);
 
     if (insertError) {
       throw insertError;
