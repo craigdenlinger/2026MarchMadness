@@ -130,11 +130,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: existingParticipant, error: participantLookupError } = await supabase
-      .from('participants')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle();
+    const { data: existingParticipant, error: participantLookupError } = await (supabase as any)
+  .from('participants')
+  .select('id')
+  .eq('email', email)
+  .maybeSingle();
 
     if (participantLookupError) {
       return NextResponse.json(
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
       );
     }
 
-    let participantId = existingParticipant?.id;
+    let participantId = (existingParticipant as any)?.id;
 
     if (!participantId) {
       const { data: newParticipant, error: participantInsertError } = await (supabase as any)
