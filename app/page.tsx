@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { LeaderboardTable } from '@/components/LeaderboardTable';
-import { getPublicMetadata } from '@/lib/data';
+import { getLeaderboard, getPublicMetadata } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,12 +40,13 @@ export default async function HomePage() {
     );
   }
 
+  const rows = await getLeaderboard();
+
   return (
     <section>
       <h2>March Madness 2026</h2>
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
-        <Link href="/enter">Enter your picks</Link>
         <Link href="/popularity">See most-picked teams</Link>
       </div>
 
@@ -73,8 +74,9 @@ export default async function HomePage() {
       <p>Points = points already earned.</p>
       <p>Live Teams = how many of that player&apos;s picks are still alive.</p>
       <p>Max Remaining = the most additional points that player could still earn.</p>
+      <p>Projected Max = current points + max remaining.</p>
 
-      <LeaderboardTable />
+      <LeaderboardTable initialRows={rows} />
     </section>
   );
 }
