@@ -3,72 +3,130 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { LeaderboardRow } from '@/lib/types';
-import { formatDateTime } from '@/lib/utils';
 
-export function LeaderboardTable() {
-  const [rows, setRows] = useState<LeaderboardRow[]>([]);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
+function formatLastUpdated(date: Date) {
+  return date.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+}
 
-  async function load() {
-    try {
-      const response = await fetch('/api/public/leaderboard', { cache: 'no-store' });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Failed to load leaderboard');
-      setRows(data);
-      setError('');
-    } catch (err: any) {
-      setError(err.message || 'Failed to load leaderboard');
-    } finally {
-      setLoading(false);
-    }
-  }
+export function LeaderboardTable({
+  initialRows,
+}: {
+  initialRows: LeaderboardRow[];
+}) {
+  const [rows, setRows] = useState<LeaderboardRow[]>(initialRows);
+  const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   useEffect(() => {
-    load();
-    const id = setInterval(load, 60_000);
-    return () => clearInterval(id);
+    let cancelled = false;
+
+    async function refreshLeaderboard() {
+      try {
+        setLoading(true);
+
+        const response = await fetch('/api/public/leaderboard', {
+          cache: 'no-store',
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to refresh leaderboard.');
+        }
+
+        if (!cancelled) {
+          setRows(data.rows || []);
+          setLastUpdated(new Date());
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    const interval = setInterval(refreshLeaderboard, 30000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, []);
 
-  if (loading) return <div className="card">Loading leaderboard...</div>;
-  if (error) return <div className="card error">{error}</div>;
-  if (rows.length === 0) return <div className="card">No entries yet.</div>;
+  if (!rows.length) {
+    return (
+      <section>
+        <p>No leaderboard entries yet.</p>
+      </section>
+    );
+  }
 
   return (
-    <div className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, gap: 12, flexWrap: 'wrap' }}>
-        <div>
-          <h2 style={{ margin: 0 }}>Leaderboard</h2>
-          <div className="muted">Auto-refreshes every 60 seconds. Click any participant to see the full card.</div>
-        </div>
-        <div className="badge">Ties share the same rank</div>
+    <section>
+      <div style={{ marginBottom: 12, opacity: 0.8 }}>
+        <p style={{ margin: 0 }}>
+          {loading ? 'Updating leaderboard…' : `Last updated: ${formatLastUpdated(lastUpdated)}`}
+        </p>
       </div>
-      <table>
+
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th>Rank</th>
-            <th>Participant</th>
-            <th>Points</th>
-            <th>Live Teams</th>
-            <th>Max Remaining</th>
-            <th>Paid Via</th>
-            <th>Submitted</th>
+            <th align="left">Rank</th>
+            <th align="left">Participant</th>
+            <th align="left">Points</th>
+            <th align="left">Live Teams</th>
+            <th align="left">Max Remaining</th>
+            <th align="left">Projected Max</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, index) => (
-            <tr key={row.entryId}>
-              <td>{index + 1}</td>
-              <td><Link href={`/entry/${row.entryId}`}>{row.participantName}</Link></td>
-              <td>{row.points}</td>
-              <td>{row.liveTeams}</td>
-              <td>{row.maxRemainingPoints}</td>
-              <td>{row.paymentMethod || '—'}</td>
-              <td>{formatDateTime(row.submittedAt)}</td>
-            </tr>
-          ))}
+          {rows.map((row, index) => {
+            const projectedMax = row.points + row.maxRemainingPoints;
+            const hasLiveTeams = row.liveTeams > 0;
+
+            return (
+              <tr
+                key={row.entryId}
+                style={{
+                  background: hasLiveTeams ? 'rgba(34, 197, 94, 0.08)' : 'transparent',
+                  borderBottom: '1px solid rgba(255,255,255,0.08)',
+                }}
+              >
+                <td>{index + 1}</td>
+                <td>
+                  <Link href={`/entry/${row.entryId}`}>{row.participantName}</Link>
+                </td>
+                <td>{row.points}</td>
+                <td>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      minWidth: 32,
+                      padding: '4px 10px',
+                      borderRadius: 999,
+                      fontWeight: 700,
+                      background: hasLiveTeams
+                        ? 'rgba(34, 197, 94, 0.18)'
+                        : 'rgba(239, 68, 68, 0.18)',
+                    }}
+                  >
+                    {row.liveTeams}
+                  </span>
+                </td>
+                <td>{row.maxRemainingPoints}</td>
+                <td style={{ fontWeight: 700 }}>{projectedMax}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
-    </div>
+    </section>
   );
 }
