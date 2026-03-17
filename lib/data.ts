@@ -124,15 +124,23 @@ function calculateTeamPoints(seed: number, wins: number, isChampion: boolean) {
 
 function calculateMaxRemainingPoints(
   seed: number,
+  wins: number,
   isAlive: boolean,
   isChampion: boolean
 ) {
   if (isChampion) return 0;
   if (!isAlive) return 0;
 
-  // Conservative/simple remaining-upside estimate.
-  // You can improve this later with exact bracket-position logic.
-  return seed;
+  const totalWinsNeededForTitle = 6;
+  const remainingWins = Math.max(0, totalWinsNeededForTitle - wins);
+
+  if (remainingWins === 0) return 0;
+
+  if (remainingWins === 1) {
+    return seed * 5;
+  }
+
+  return seed * (remainingWins - 1) + seed * 5;
 }
 
 export async function getLeaderboard(): Promise<LeaderboardRow[]> {
@@ -179,7 +187,7 @@ export async function getLeaderboard(): Promise<LeaderboardRow[]> {
       return {
         points: calculateTeamPoints(seed, wins, isChampion),
         isAlive,
-        maxRemainingPoints: calculateMaxRemainingPoints(seed, isAlive, isChampion),
+        maxRemainingPoints: calculateMaxRemainingPoints(seed, wins, isAlive, isChampion),
       };
     });
 
@@ -287,7 +295,7 @@ export async function getEntryDetail(entryId: string): Promise<EntryDetail | nul
     const isAlive = !!team?.is_alive;
     const isChampion = !!team?.is_champion;
     const points = calculateTeamPoints(seed, wins, isChampion);
-    const maxRemainingPoints = calculateMaxRemainingPoints(seed, isAlive, isChampion);
+    const maxRemainingPoints = calculateMaxRemainingPoints(seed, wins, isAlive, isChampion);
 
     return {
       teamId: team?.id || '',
