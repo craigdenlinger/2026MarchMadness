@@ -56,9 +56,9 @@ export function LeaderboardTable() {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
+          {rows.map((row, index) => (
             <tr key={row.entryId}>
-              <td>{row.rank}</td>
+              <td>{index + 1}</td>
               <td><Link href={`/entry/${row.entryId}`}>{row.participantName}</Link></td>
               <td>{row.points}</td>
               <td>{row.liveTeams}</td>
