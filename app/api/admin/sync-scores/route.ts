@@ -6,7 +6,7 @@ import { normalizeTeamName } from '@/lib/utils';
 
 function getRecentDates() {
   const dates: string[] = [];
-  for (let offset = -1; offset <= 1; offset += 1) {
+  for (let offset = -7; offset <= 1; offset += 1) {
     const d = new Date();
     d.setDate(d.getDate() + offset);
     dates.push(d.toISOString().slice(0, 10).replace(/-/g, ''));
